@@ -1,0 +1,41 @@
+{
+  "project_id": "gen-lang-client-0887512265",
+  "collections": [
+    {
+      "name": "customers",
+      "description": "Stores customer details.",
+      "fields": [
+        { "name": "name", "type": "string" },
+        { "name": "phone", "type": "string" },
+        { "name": "createdAt", "type": "timestamp" }
+      ]
+    },
+    {
+      "name": "debts",
+      "description": "Stores transactions/debts for customers.",
+      "fields": [
+        { "name": "customerId", "type": "string" },
+        { "name": "customerName", "type": "string" },
+        { "name": "itemName", "type": "string" },
+        { "name": "costPrice", "type": "number", "description": "Original cost of the item for profit calculation" },
+        { "name": "sellPrice", "type": "number", "description": "Total selling price" },
+        { "name": "downPayment", "type": "number" },
+        { "name": "installmentAmount", "type": "number" },
+        { "name": "remainingAmount", "type": "number" },
+        { "name": "nextDueDate", "type": "timestamp" },
+        { "name": "status", "type": "string", "description": "'active' or 'completed'" },
+        { "name": "createdAt", "type": "timestamp" }
+      ]
+    },
+    {
+      "name": "payments",
+      "description": "Stores individual installment payments.",
+      "fields": [
+        { "name": "debtId", "type": "string" },
+        { "name": "customerId", "type": "string" },
+        { "name": "amount", "type": "number" },
+        { "name": "paymentDate", "type": "timestamp" }
+      ]
+    }
+  ]
+}
