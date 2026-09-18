@@ -146,12 +146,15 @@ function MainApp({ user, onLogout }: { user: User, onLogout: () => void }) {
 
   useEffect(() => {
     if (loading) return;
-    const isOwner = user.email === 'ghadaqzau@gmail.com';
+    
+    // تم إضافة الإيميل الثاني هنا
+    const isOwner = user.email?.toLowerCase() === 'ghadaqzau@gmail.com' || user.email?.toLowerCase() === 'lolazau@gmail.com';
+    
     const savedCode = localStorage.getItem('empCode');
     const isEmployee = user.isAnonymous && employees.some(e => e.code === savedCode);
 
     if (!isOwner && !isEmployee) {
-      alert('رمز الدخول غير صحيح أو ليس لديك صلاحية.');
+      alert('ليس لديك صلاحية الدخول. يجب أن تكون المدير أو عاملاً مسجلاً برمز الدخول.');
       onLogout();
     }
   }, [loading, employees, user, onLogout]);
@@ -165,7 +168,9 @@ function MainApp({ user, onLogout }: { user: User, onLogout: () => void }) {
     );
   }
 
-  const role = user.email === 'ghadaqzau@gmail.com' ? 'admin' : 'employee';
+  // وتم إضافة الإيميل الثاني هنا أيضاً لتحديد الصلاحيات
+  const role = (user.email?.toLowerCase() === 'ghadaqzau@gmail.com' || user.email?.toLowerCase() === 'lolazau@gmail.com') ? 'admin' : 'employee';
+  
   const employeeName = employees.find(e => e.code === localStorage.getItem('empCode'))?.name || 'عامل';
 
   return (
@@ -216,4 +221,3 @@ function MainApp({ user, onLogout }: { user: User, onLogout: () => void }) {
     </div>
   );
 }
-
