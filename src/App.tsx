@@ -185,6 +185,20 @@ function MainApp({ user, onLogout }: { user: User, onLogout: () => void }) {
   const savedCode = localStorage.getItem('empCode');
   const isEmployee = user.isAnonymous && employees.some(e => e.code === savedCode);
 
+  const handleAddAdmin = async (email: string, name?: string) => {
+    if (!isPrimaryAdmin) {
+      throw new Error('فقط صاحب الإيميل الأساسي المعتمد في الكود يملك صلاحية إضافة مدراء.');
+    }
+    await addAdmin(email, name, user.displayName || user.email || 'المدير الرئيسي');
+  };
+
+  const handleDeleteAdmin = async (id: string) => {
+    if (!isPrimaryAdmin) {
+      throw new Error('فقط صاحب الإيميل الأساسي المعتمد في الكود يملك صلاحية حذف المدراء.');
+    }
+    await deleteAdmin(id);
+  };
+
   const handlePromoteSelf = async () => {
     if (!promoKey.trim()) return;
     setPromoError('');
@@ -320,7 +334,13 @@ function MainApp({ user, onLogout }: { user: User, onLogout: () => void }) {
                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                {role === 'admin' ? (user.displayName || maskEmail(user.email || '')) : employeeName}
                {role === 'admin' && (
-                 <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">مدير</span>
+                 <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
+                   isPrimaryAdmin 
+                     ? 'bg-amber-100 text-amber-800 border border-amber-300' 
+                     : 'bg-blue-100 text-blue-700'
+                 }`}>
+                   {isPrimaryAdmin ? 'المدير الرئيسي (المالك)' : 'مدير معتمد'}
+                 </span>
                )}
              </div>
              <button onClick={onLogout} title="تسجيل الخروج" className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-transparent hover:border-red-100">
@@ -340,6 +360,7 @@ function MainApp({ user, onLogout }: { user: User, onLogout: () => void }) {
           employees={employees}
           admins={admins}
           primaryAdminEmails={PRIMARY_ADMIN_EMAILS}
+          isPrimaryAdmin={isPrimaryAdmin}
           userRole={role}
           onAddDebt={addCustomerAndDebt}
           onPay={payInstallment}
@@ -352,8 +373,8 @@ function MainApp({ user, onLogout }: { user: User, onLogout: () => void }) {
           onDeletePayment={deletePayment}
           onAddEmployee={addEmployee}
           onDeleteEmployee={deleteEmployee}
-          onAddAdmin={addAdmin}
-          onDeleteAdmin={deleteAdmin}
+          onAddAdmin={handleAddAdmin}
+          onDeleteAdmin={handleDeleteAdmin}
         />
       </main>
     </div>

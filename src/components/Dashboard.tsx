@@ -15,6 +15,7 @@ interface Props {
   employees: Employee[];
   admins?: AdminUser[];
   primaryAdminEmails?: string[];
+  isPrimaryAdmin?: boolean;
   userRole: UserRole;
   onAddDebt: (data: {
     customerName: string;
@@ -195,7 +196,7 @@ export const exportToExcelRTL = async (
   }
 };
 
-export function Dashboard({ customers, debts, payments, expenses, employees, admins = [], primaryAdminEmails = [], userRole, onAddDebt, onPay, onAddExpense, onDeleteExpense, onArchiveDebt, onDeletePermanentDebt, onUpdateDebt, onUpdatePayment, onDeletePayment, onAddEmployee, onDeleteEmployee, onAddAdmin, onDeleteAdmin }: Props) {
+export function Dashboard({ customers, debts, payments, expenses, employees, admins = [], primaryAdminEmails = [], isPrimaryAdmin = false, userRole, onAddDebt, onPay, onAddExpense, onDeleteExpense, onArchiveDebt, onDeletePermanentDebt, onUpdateDebt, onUpdatePayment, onDeletePayment, onAddEmployee, onDeleteEmployee, onAddAdmin, onDeleteAdmin }: Props) {
   // If user is employee, default to debts tab because overview is hidden
   const [activeTab, setActiveTab] = useState<'overview' | 'debts' | 'cashSales' | 'archive' | 'employees'>(userRole === 'admin' ? 'overview' : 'debts');
   const [isAddModalOpen, setIsAddModalOpen] = useState<'debt' | 'cash' | false>(false);
@@ -1008,18 +1009,25 @@ export function Dashboard({ customers, debts, payments, expenses, employees, adm
                   <p className="text-xs sm:text-sm text-slate-500 font-medium">تسجيل الدخول عبر Google - صلاحية كاملة لإدارة السجلات والتقارير</p>
                 </div>
               </div>
-              <button 
-                onClick={() => {
-                  setNewAdminEmail('');
-                  setNewAdminName('');
-                  setAdminError('');
-                  setIsAddAdminModalOpen(true);
-                }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:py-2.5 text-xs sm:text-sm rounded-xl flex items-center gap-2 font-bold transition-colors shadow-sm whitespace-nowrap self-stretch sm:self-auto justify-center"
-              >
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                إضافة بريد مدير جديد
-              </button>
+              {isPrimaryAdmin ? (
+                <button 
+                  onClick={() => {
+                    setNewAdminEmail('');
+                    setNewAdminName('');
+                    setAdminError('');
+                    setIsAddAdminModalOpen(true);
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:py-2.5 text-xs sm:text-sm rounded-xl flex items-center gap-2 font-bold transition-colors shadow-sm whitespace-nowrap self-stretch sm:self-auto justify-center"
+                >
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                  إضافة بريد مدير جديد
+                </button>
+              ) : (
+                <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 text-amber-800 rounded-xl text-xs font-bold border border-amber-200">
+                  <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>إضافة وحذف المدراء مقتصرة حصرياً على صاحب الحساب الأساسي</span>
+                </div>
+              )}
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
@@ -1069,18 +1077,22 @@ export function Dashboard({ customers, debts, payments, expenses, employees, adm
                           {adm.createdAt ? format(new Date(adm.createdAt), 'yyyy/MM/dd') : '-'}
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <button 
-                            onClick={() => {
-                              setConfirmAction({
-                                message: `هل أنت متأكد من حذف حساب المدير (${maskEmail(adm.email)})؟ سيفقد صلاحية الدخول كمدير فوراً.`,
-                                onConfirm: () => onDeleteAdmin && adm.id && onDeleteAdmin(adm.id)
-                              });
-                            }} 
-                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
-                            title="حذف هذا المدير"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {isPrimaryAdmin ? (
+                            <button 
+                              onClick={() => {
+                                setConfirmAction({
+                                  message: `هل أنت متأكد من حذف حساب المدير (${maskEmail(adm.email)})؟ سيفقد صلاحية الدخول كمدير فوراً.`,
+                                  onConfirm: () => onDeleteAdmin && adm.id && onDeleteAdmin(adm.id)
+                                });
+                              }} 
+                              className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                              title="حذف هذا المدير"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <span className="text-xs text-slate-400 font-medium select-none" title="فقط صاحب البريد المعتمد في الكود يمكنه حذف المدراء">-</span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -1295,6 +1307,10 @@ export function Dashboard({ customers, debts, payments, expenses, employees, adm
             <form onSubmit={async (e) => {
               e.preventDefault();
               if (!newAdminEmail.trim()) return;
+              if (!isPrimaryAdmin) {
+                setAdminError('عذراً، فقط صاحب الإيميل الأساسي المعتمد في الكود يملك صلاحية إضافة مدراء.');
+                return;
+              }
               setAdminError('');
               setAdminSubmitting(true);
               try {
