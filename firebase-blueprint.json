@@ -1,0 +1,120 @@
+{
+  "entities": {
+    "Customer": {
+      "title": "Customer",
+      "description": "Stores customer details",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name"]
+    },
+    "Debt": {
+      "title": "Debt",
+      "description": "Stores debt and transaction records",
+      "type": "object",
+      "properties": {
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "itemName": { "type": "string" },
+        "costPrice": { "type": "number" },
+        "sellPrice": { "type": "number" },
+        "downPayment": { "type": "number" },
+        "installmentAmount": { "type": "number" },
+        "remainingAmount": { "type": "number" },
+        "nextDueDate": { "type": "number" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "transactionDate": { "type": "number" },
+        "isCashSale": { "type": "boolean" },
+        "isArchived": { "type": "boolean" },
+        "warrantyMonths": { "type": "number" },
+        "serialNumber": { "type": "string" },
+        "vehiclePlate": { "type": "string" },
+        "carType": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["customerName", "itemName", "sellPrice", "remainingAmount"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Stores payment receipts",
+      "type": "object",
+      "properties": {
+        "debtId": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentDate": { "type": "number" },
+        "notes": { "type": "string" }
+      },
+      "required": ["debtId", "amount", "paymentDate"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Stores business expenses",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "notes": { "type": "string" }
+      },
+      "required": ["title", "amount"]
+    },
+    "Employee": {
+      "title": "Employee",
+      "description": "Stores employee access profiles",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "role": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name", "code"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Stores additional administrator Google accounts added from within the app",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "addedBy": { "type": "string" }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Customer profiles and contact info"
+    },
+    "/debts/{debtId}": {
+      "schema": "Debt",
+      "description": "Debt and sales transaction records"
+    },
+    "/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Installment payments history"
+    },
+    "/expenses/{expenseId}": {
+      "schema": "Expense",
+      "description": "Business expenses entries"
+    },
+    "/employees/{employeeId}": {
+      "schema": "Employee",
+      "description": "Employee authorization records"
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Authorized administrator accounts"
+    }
+  }
+}

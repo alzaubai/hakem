@@ -1,0 +1,8 @@
+{
+  "name": "Remix سجل الديون",
+  "description": "تطبيق ويب لإدارة ديون المحل، وتتبع مشتريات وأقساط العملاء.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

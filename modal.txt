@@ -1,0 +1,187 @@
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function AddDebtModal({ onClose, onAdd }: { onClose: () => void, onAdd: (name: string, phone: string, item: string, cost: number, sell: number, down: number, installment: number, nextDate: number, transactionDate: number) => Promise<void> }) {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [item, setItem] = useState('');
+  const [costPrice, setCostPrice] = useState('');
+  const [sellPrice, setSellPrice] = useState('');
+  const [downPayment, setDownPayment] = useState('');
+  const [installment, setInstallment] = useState('');
+  
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const [transactionDate, setTransactionDate] = useState(todayStr);
+  const [nextDueDate, setNextDueDate] = useState(format(addMonths(new Date(), 1), 'yyyy-MM-dd'));
+  
+  const [loading, setLoading] = useState(false);
+
+  const remaining = Number(sellPrice) - Number(downPayment);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    const nextDateMs = startOfDay(new Date(nextDueDate)).getTime();
+    const transactionDateMs = startOfDay(new Date(transactionDate)).getTime();
+
+    await onAdd(
+      name, 
+      phone || '', 
+      item, 
+      Number(costPrice), 
+      Number(sellPrice), 
+      Number(downPayment), 
+      Number(installment), 
+      nextDateMs,
+      transactionDateMs
+    );
+    setLoading(false);
+  };
+
+  const handleIntervalQuickSelect = (type: 'month' | 'week') => {
+    const baseDate = new Date(transactionDate);
+    const newNext = type === 'month' ? addMonths(baseDate, 1) : addWeeks(baseDate, 1);
+    setNextDueDate(format(newNext, 'yyyy-MM-dd'));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden border border-slate-100">
+        <div className="p-4 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
+          <h2 className="text-xl font-black text-slate-900">إضافة معاملة دين جديدة</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-2 bg-white rounded-lg border border-slate-200">✕</button>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700">اسم الزبون <span className="text-red-500">*</span></label>
+              <input required type="text" value={name} onChange={e => setName(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700">رقم الهاتف (للواتساب)</label>
+              <input type="text" placeholder="07..." value={phone} onChange={e => setPhone(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 dir-ltr text-right font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-bold text-slate-700">نوع البضاعة (مثل: باتري، تاير) <span className="text-red-500">*</span></label>
+            <input required type="text" value={item} onChange={e => setItem(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700">سعر التكلفة (رأس المال) <span className="text-red-500">*</span></label>
+              <input required type="number" min="0" value={costPrice} onChange={e => setCostPrice(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 font-bold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700">السعر الكلي (البيع) <span className="text-red-500">*</span></label>
+              <input required type="number" min="0" value={sellPrice} onChange={e => setSellPrice(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 font-bold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700">المقدمة (الواصل) <span className="text-red-500">*</span></label>
+              <input required type="number" min="0" value={downPayment} onChange={e => setDownPayment(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 font-bold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700">قيمة القسط <span className="text-red-500">*</span></label>
+              <input required type="number" min="0" value={installment} onChange={e => setInstallment(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 font-bold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700">تاريخ الشراء (المعاملة) <span className="text-red-500">*</span></label>
+              <input required type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700">تاريخ القسط القادم <span className="text-red-500">*</span></label>
+              <input required type="date" value={nextDueDate} onChange={e => setNextDueDate(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" />
+              <div className="flex gap-2 pt-2">
+                <button type="button" onClick={() => handleIntervalQuickSelect('month')} className="flex-1 text-xs font-bold bg-slate-100 text-slate-600 py-2 rounded-lg hover:bg-slate-200 transition-colors border border-slate-200">بعد شهر</button>
+                <button type="button" onClick={() => handleIntervalQuickSelect('week')} className="flex-1 text-xs font-bold bg-slate-100 text-slate-600 py-2 rounded-lg hover:bg-slate-200 transition-colors border border-slate-200">بعد أسبوع</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 flex justify-between items-center mt-8">
+            <span className="text-blue-900 font-bold">المبلغ الباقي تلقائياً:</span>
+            <span className="text-2xl font-black text-blue-700">
+              {isNaN(remaining) || remaining < 0 ? 0 : remaining.toLocaleString('en-US')} د.ع
+            </span>
+          </div>
+
+          <div className="pt-4 flex gap-3">
+            <button type="submit" disabled={loading} className="flex-2 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold transition-colors disabled:opacity-50 w-full shadow-sm">
+              {loading ? 'جاري الحفظ...' : 'حفظ المعاملة وبدء الدين'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function AddEmployeeModal({ 
+  isOpen, 
+  onClose, 
+  onAdd 
+}: { 
+  isOpen: boolean, 
+  onClose: () => void, 
+  onAdd: (name: string, code: string) => Promise<void> 
+}) {
+  const [name, setName] = useState('');
+  const [code, setCode] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm flex flex-col max-h-[90vh] overflow-hidden border border-slate-100 animate-in fade-in zoom-in duration-200">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
+          <h2 className="text-lg font-bold text-slate-900">إضافة عامل جديد</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-2 bg-white rounded-lg border border-slate-200 transition-colors">✕</button>
+        </div>
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          setLoading(true);
+          try {
+            await onAdd(name, code);
+            onClose();
+            setName('');
+            setCode('');
+          } catch (error) {
+            console.error(error);
+            alert('حدث خطأ أثناء إضافة العامل');
+          } finally {
+            setLoading(false);
+          }
+        }} className="p-6 space-y-4 overflow-y-auto">
+          <div className="space-y-1.5">
+            <label className="text-sm font-bold text-slate-700">اسم العامل <span className="text-red-500">*</span></label>
+            <input required type="text" value={name} onChange={e => setName(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" placeholder="مثال: أحمد" />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-bold text-slate-700">رمز الدخول <span className="text-red-500">*</span></label>
+            <input required type="text" value={code} onChange={e => setCode(e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-3 font-bold text-center tracking-[0.2em] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white transition-colors" placeholder="مثال: 1234" dir="ltr" />
+            <p className="text-xs font-medium text-slate-500 mt-1 text-center">سيستخدم العامل هذا الرمز لتسجيل الدخول</p>
+          </div>
+          <div className="pt-4 flex gap-3">
+            <button type="submit" disabled={loading} className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-3.5 rounded-xl font-bold transition-colors disabled:opacity-50 shadow-sm flex items-center justify-center gap-2">
+              {loading ? 'جاري الإضافة...' : 'إضافة العامل'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
