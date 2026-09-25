@@ -3,14 +3,18 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Unregister any stale dev service workers to ensure immediate updates
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    for (const registration of registrations) {
-      registration.unregister();
-    }
-  });
-}
+import { registerSW } from 'virtual:pwa-register';
+
+// Register service worker automatically for PWA installation & offline functionality
+registerSW({
+  immediate: true,
+  onNeedRefresh() {
+    console.log('محتوى جديد متوفر للتطبيق.');
+  },
+  onOfflineReady() {
+    console.log('التطبيق جاهز للعمل دون اتصال بالإنترنت.');
+  },
+});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

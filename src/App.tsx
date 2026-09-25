@@ -6,6 +6,7 @@ import { auth, googleProvider, signInWithPopup, signOut, signInAnonymously } fro
 import { User } from "firebase/auth";
 import type { UserRole } from "./types";
 import { maskEmail } from "./lib/utils";
+import { PWAInstallButton } from "./components/PWAInstallButton";
 
 export const PRIMARY_ADMIN_EMAILS = [
   'abdalhakeem852@gmail.com'
@@ -141,6 +142,11 @@ export default function App() {
               </button>
             </form>
           )}
+
+          <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between">
+            <span className="text-xs text-slate-400 font-medium">متاح كتطبيق لهاتفك</span>
+            <PWAInstallButton />
+          </div>
         </div>
       </div>
     );
@@ -329,7 +335,8 @@ function MainApp({ user, onLogout }: { user: User, onLogout: () => void }) {
               <p className="text-xs text-slate-500 font-medium">نظام إدارة الأقساط ورأس المال</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
+             <PWAInstallButton />
              <div className="hidden sm:flex items-center gap-2 text-sm font-bold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                {role === 'admin' ? (user.displayName || maskEmail(user.email || '')) : employeeName}
